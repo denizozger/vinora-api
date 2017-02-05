@@ -5,7 +5,7 @@ const bluebird = require('bluebird')
 const request = require('request')
 const fetch = bluebird.promisify(request.get)
 const cheerio = require('cheerio')
-const { merge, compose, pick, composeP, map, first } = require('ramda')
+const { merge, compose, pick, composeP, map, head } = require('ramda')
 
 const WINE_DB_URL = process.env.WINE_DB_URL
 
@@ -31,4 +31,4 @@ const parse = html => {
   return results(json)
 }
 
-exports.search = composeP(first, parse, fetch, getUrl)
+exports.search = composeP(head, parse, fetch, getUrl)
