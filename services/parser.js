@@ -8,7 +8,6 @@ const
   assert    = require('assert'),
   uuid    = require('uuid'),
   os      = require('os'),
-  should    = require('should'),
   PDFJS     = require('pdfjs-dist');
 
 const

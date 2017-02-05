@@ -5,7 +5,7 @@ const bluebird = require('bluebird')
 const request = require('request')
 const fetch = bluebird.promisify(request.get)
 const cheerio = require('cheerio')
-const { merge, compose, pick, composeP, map } = require('ramda')
+const { merge, compose, pick, composeP, map, first } = require('ramda')
 
 const WINE_DB_URL = process.env.WINE_DB_URL
 
@@ -28,9 +28,7 @@ const getUrl = q => Promise.resolve(`${WINE_DB_URL}/search/wines?q=${searchQuery
 const parse = html => {
   const $ = cheerio.load(html.body)
   const json = $('script[type="application/ld+json"]')
-  return results(json)[0]
-  // const t = results(json)
-  // return [t[0]['@id']]
+  return results(json)
 }
 
-exports.search = composeP(parse, fetch, getUrl)
+exports.search = composeP(first, parse, fetch, getUrl)
