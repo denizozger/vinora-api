@@ -1,0 +1,29 @@
+{
+  "name": "vinora-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "micro",
+    "test": "mocha test/test",
+    "test:watch": "mocha test/test -w"
+  },
+  "author": "denizozger@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^3.1.2",
+    "should": "^11.1.1"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "cheerio": "^0.22.0",
+    "download": "^5.0.2",
+    "lodash": "^4.16.4",
+    "micro": "^7.0.0",
+    "pdfjs-dist": "^1.6.263",
+    "ramda": "^0.23.0",
+    "request": "^2.79.0",
+    "tmp": "0.0.30",
+    "uuid": "^3.0.0"
+  }
+}
