@@ -5,7 +5,12 @@ const bluebird = require('bluebird')
 const request = require('request')
 const fetch = bluebird.promisify(request.get)
 const cheerio = require('cheerio')
-const { merge, compose, pick, composeP, map, head } = require('ramda')
+const { merge, compose, pick, composeP, map, head, curry } = require('ramda')
+
+// var trace = curry(function(tag, x) {
+//   console.log(tag, x);
+//   return x;
+// });
 
 const WINE_DB_URL = process.env.WINE_DB_URL
 
@@ -19,8 +24,9 @@ const searchQueryString = compose(qs.stringify, options)
 
 const getHtml = x => x.html()
 
-const pickFields = pick(['@id', 'name', 'aggregateRating', 'manufacturer'])
+const pickFields = pick(['@id', 'name', 'image', 'aggregateRating', 'manufacturer'])
 
+// const results = compose(map(pickFields), trace('results'), JSON.parse, getHtml)
 const results = compose(map(pickFields), JSON.parse, getHtml)
 
 const getUrl = q => Promise.resolve(`${WINE_DB_URL}/search/wines?q=${searchQueryString(q)}`)

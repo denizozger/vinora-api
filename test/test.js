@@ -45,7 +45,6 @@ describe('wine service', function() {
       .then(results => {
         results.should.be.instanceof(Array)
         results.length.should.not.be.exactly(0)
-        console.log(results[0]);
         done()
       })
       .catch(console.error)
