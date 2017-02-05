@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "micro",
-    "test": "mocha test/test",
+    "test:be": "mocha test/test.js",
     "test:watch": "mocha test/test -w",
+    "test:api": "ava test/api.js",
+    "test": "npm run test:be && npm run test:api",
     "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "lint": "echo ''",
     "check": "npm run lint && npm run flow && npm run test"
@@ -30,5 +32,8 @@
     "request": "^2.79.0",
     "tmp": "0.0.30",
     "uuid": "^3.0.0"
+  },
+  "engines": {
+    "node": "7.5.x"
   }
 }
