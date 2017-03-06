@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vinora</title>
+  <style type="text/css">
+    .progressjs-theme-blue .progressjs-inner {
+        height: 2px;
+        -webkit-transition: all 0.3s ease-out;
+        -moz-transition: all 0.3s ease-out;
+        -o-transition: all 0.3s ease-out;
+        transition: all 0.3s ease-out;
+        background-color: #3498db;
+    }
+
+    .progressjs-theme-blue .progressjs-percent {
+        display: none;
+    }
+  </style>
+</head>
+<body>
+    <h1>Vinora</h1>
+    <p>Copy a restaurant's wine list link, and get the ratings. The file needs to be in PDF format.</p>
+    <p>The ratings are usually an average of all vintages, to select a specific vintage, follow the link on wine's name</p>
+    <p>Or else, try:</p>
+    <p>http://noblerot.co.uk/wp-content/uploads/2017/03/FINAL.pdf</p>
+    <form action="#" method="post" id="find-form">
+      <div>
+        <label for="url">Wine list url:</label>
+        <input type="text" id="url" name="url"> <button type="submit">Find ratings</button>
+      </div>
+    </form>
+
+    <ul></ul>
+
+    <table id="wine-list">
+      <thead>
+      <tr>
+        <th>List name</th>
+        <th>List price</th>
+        <th>Retail price (Est)</th>
+        <th>Price difference</th>
+        <th>Name (Est)</th>
+        <th>Vintage (Est)</th>
+        <th>Producer (Est)</th>
+        <th>Rating</th>
+        <th># of reviews</th>
+        <th>Rating / Price</th>
+      </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/progress.js/0.1.0/progress.min.js"></script>  
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.23.0/ramda.min.js"></script>
+
+  <script>
+    var socket = io('http://127.0.0.1:3000')
+
+    let total = 0, processed = 0
+    let allResults = []
+
+    function sendUrl() {
+      const url = $('#url').val()
+      const notAPdf = link => !link.match(/.(pdf)$/i)
+
+      if (notAPdf(url)) {
+        alert('Not a pdf file!')
+        return
+      }
+
+      $('tbody').html('')
+      progressJs().start()
+      socket.emit('url', url);
+    }
+
+    socket.on('wines-parsed', function(wines){
+      console.log(wines.length, ' wines-parsed')
+
+      total = wines.length
+
+      const cumulativePrice = wines.reduce((acc, val) => acc + Number(parseFloat(String(val.pdfPrice).replace(/,/g, ''))), 0)
+
+      $('ul').append(`<li>Average price: £${ Math.round(cumulativePrice / total) }</li>`)
+      $('ul').append(`<li id="progress">Processing ${total} wines...</li>`)
+      $('ul').append(`<li id="avg-rating">Average rating:</li>`)
+
+      wines.map((wine, index) => {
+        console.log(index, wine)
+        $("#wine-list").find('tbody')
+            .append(`
+              <tr data-index="${index}">
+                <td>${wine.pdfName}</td>
+                <td>£${wine.pdfPrice}</td>
+              </tr>
+            `)  
+      })
+    })
+
+    socket.on('result', function(data){
+      console.log('result', data)
+      const wine = data.wine
+      const result = data.result
+
+      if (!data || !data.result) {
+        return
+      }
+
+      allResults.push(result)
+
+      $(`[data-index="${wine.index}"]`).append(`
+        <td>${result.price ? ('£' + result.price) : 'N/A'}</td>
+        <td>${result.price ? ('£' + Math.round(wine.pdfPrice - result.price)) : 'N/A'}</td>
+        <td><a href=${result['@id']} target="_blank">${result.name}</a></td>
+        <td>${result.vintage ? result.vintage : 'N/A'}</td>
+        <td><a href=${result.manufacturer ? result.manufacturer.url : ''} target="_blank">${result.manufacturer ? result.manufacturer.name : ''}</a></td>
+        <td>${result.aggregateRating ? result.aggregateRating.ratingValue : ''}</td>
+        <td>${result.aggregateRating ? result.aggregateRating.reviewCount : ''}</td>
+        <td>${result.aggregateRating ? Math.round(result.aggregateRating.ratingValue / wine.pdfPrice * 1000) : ''}</td>
+      `)
+
+      $('#progress').text(`Processed ${++processed} / ${total} wines`)
+
+      progressJs().set(processed / total * 100)
+      if (processed === total) {
+        progressJs().end()
+      } 
+      
+      const cumulativeRating = allResults.reduce((acc, val) => acc + Number(val.aggregateRating.ratingValue), 0)
+      $('#avg-rating').text(`Average rating: ${ (cumulativeRating / processed).toFixed(1) }`)
+
+    })
+
+    $("#find-form").submit(function( event ) {
+      event.preventDefault()
+      sendUrl()
+    })
+  </script>
+
+
+</body>
+</html>

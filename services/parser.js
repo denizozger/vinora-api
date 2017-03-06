@@ -1,5 +1,3 @@
-'use strict'
-
 const 
   BBP       = require('bluebird'),
   fs        = BBP.promisifyAll(require('fs')),
@@ -46,10 +44,15 @@ function extractData(data) {
           .map(c => c.items.map(i => i.str))
           .reduce((a, b) => a.concat(b), [])
           .filter(s => s.trim());
+
+        let index = 0
           
         strings.forEach((s, i) => {
           if (s.startsWith(currencySymbol)) {
-            wines.push({pdfName: strings[i - 1].trim(), pdfPrice: s.trim()});
+            const wine = {index: index, pdfName: strings[i - 1].trim(), pdfPrice: s.trim().substring(1)}
+            console.log(`parsed: ${wine.index} ${wine.pdfName} ${wine.pdfPrice}`)
+            wines.push(wine)
+            index++
           }
         });
 

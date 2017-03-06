@@ -10,7 +10,7 @@ const
 const 
   menuPath = path.join(process.cwd(), 'test', 'menu.pdf'),
   singlePagePath = path.join(process.cwd(), 'test', 'single_page.pdf'),
-  pdfUrl  = 'http://noblerot.co.uk/wp-content/uploads/2016/11/FINAL.pdf'
+  pdfUrl  = 'http://noblerot.co.uk/wp-content/uploads/2017/03/FINAL.pdf'
   
 
 describe('pdf-parser', function() {
@@ -28,14 +28,14 @@ describe('pdf-parser', function() {
   })
 
   // todo: find a static url, this one 404s
-  // it('should parse a wine menu from a url', function(done) {
-  //   parser.parseUrl(pdfUrl)
-  //     .then(wines => {
-  //       // console.log(wines)
-  //       done()
-  //     })
-  //     .catch(console.error)
-  // })
+  it('should parse a wine menu from a url', function(done) {
+    parser.parseUrl(pdfUrl)
+      .then(wines => {
+        console.log(wines)
+        done()
+      })
+      .catch(console.error)
+  })
 })
 
 describe('wine service', function() {
